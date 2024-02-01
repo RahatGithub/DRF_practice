@@ -6,4 +6,4 @@ class BookSerializer(serializers.ModelSerializer):
         app_label = 'home'
         model = Book 
         fields = '__all__'
-        # exclude = ['id', ] 
+        
