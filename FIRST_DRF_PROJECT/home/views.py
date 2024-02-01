@@ -19,7 +19,7 @@ class BooksAPI(APIView):
 
     def post(self, request):
         data = request.data 
-        serializer = BookSerializer(data = request.data)
+        serializer = BookSerializer(data = request.data, many=True)
 
         if not serializer.is_valid():
             return Response({'status' : 403, 'message' : 'something went wrong!'})
@@ -41,8 +41,7 @@ class BooksAPI(APIView):
         except Exception as e: 
             print(e)
             return Response({'status' : 403, 'message' : 'invalid id'})
-
-
+        
 
 
 @api_view(['GET'])
@@ -53,10 +52,15 @@ def search_book(request):
     limit = request.GET.get('limit')
 
     try:
-        if order == 'asc':
-            books_qs = Book.objects.filter(author__icontains=author).order_by(sort)
-        elif order == 'desc':
-            books_qs = Book.objects.filter(author__icontains=author).order_by(f'-{sort}')
+        books_qs = Book.objects.filter(author__icontains=author)
+        if order and sort:
+            if order == 'asc':
+                books_qs = books_qs.order_by(sort)
+            else:
+                books_qs = books_qs.order_by(f'-{sort}')
+        if limit:
+            limit = int(limit)
+            books_qs = books_qs[:limit]
         
         serializer = BookSerializer(books_qs, many=True)
         return Response({
