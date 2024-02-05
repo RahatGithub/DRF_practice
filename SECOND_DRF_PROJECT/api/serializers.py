@@ -6,4 +6,11 @@ class BookSerializer(serializers.ModelSerializer):
         app_label = 'api'
         model = Book 
         fields = '__all__'
+
+
+class BookUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        app_label = 'api'
+        model = Book 
+        exclude = ['id']
         

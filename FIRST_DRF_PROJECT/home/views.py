@@ -90,44 +90,44 @@ class BooksAPI(APIView):
 
         
 
-@api_view(['GET'])
-def search_book(request):
-    # Extract query parameters
-    title = request.GET.get('title')
-    author = request.GET.get('author')
-    genre = request.GET.get('genre')
-    sort_field = request.GET.get('sort', 'id')
-    order = request.GET.get('order', 'ASC')
+# @api_view(['GET'])
+# def search_book(request):
+#     # Extract query parameters
+#     title = request.GET.get('title')
+#     author = request.GET.get('author')
+#     genre = request.GET.get('genre')
+#     sort_field = request.GET.get('sort', 'id')
+#     order = request.GET.get('order', 'ASC')
 
-    # Construct the base queryset
-    queryset = Book.objects.all()
+#     # Construct the base queryset
+#     queryset = Book.objects.all()
 
-    # Apply search filters if provided
-    if title:
-        queryset = queryset.filter(title__icontains=title)
-    if author:
-        queryset = queryset.filter(author__icontains=author)
-    if genre:
-        queryset = queryset.filter(genre__icontains=genre)
+#     # Apply search filters if provided
+#     if title:
+#         queryset = queryset.filter(title__icontains=title)
+#     if author:
+#         queryset = queryset.filter(author__icontains=author)
+#     if genre:
+#         queryset = queryset.filter(genre__icontains=genre)
 
-    # Apply sorting
-    if order == 'DESC':
-        sort_field = '-' + sort_field
+#     # Apply sorting
+#     if order == 'DESC':
+#         sort_field = '-' + sort_field
 
-    # Sort the queryset
-    queryset = queryset.order_by(sort_field)
+#     # Sort the queryset
+#     queryset = queryset.order_by(sort_field)
 
-    if not title and not author and not genre:
-        queryset = Book.objects.all()
+#     if not title and not author and not genre:
+#         queryset = Book.objects.all()
 
-    # Serialize the queryset into JSON format
-    books = [{
-        'id': book.id,
-        'title': book.title,
-        'author': book.author,
-        'genre': book.genre,
-        'price': float(book.price)
-    } for book in queryset]
+#     # Serialize the queryset into JSON format
+#     books = [{
+#         'id': book.id,
+#         'title': book.title,
+#         'author': book.author,
+#         'genre': book.genre,
+#         'price': float(book.price)
+#     } for book in queryset]
 
-    # Return the response
-    return Response({'books': books})
+#     # Return the response
+#     return Response({'books': books})
