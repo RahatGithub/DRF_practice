@@ -44,8 +44,11 @@ class BookAPI(APIView):
 
     # serves DELETE BOOKS
     def delete(self, request, id):
-        book = Book.objects.get(id=id)
-        book.delete() 
+        try: 
+            book = Book.objects.get(id=id)
+            book.delete() 
+        except:
+            return Response({"message" : f"book with id: {id} was not found"})
         return Response({"message" : f"deleted book with id: {id}"})
 
 
