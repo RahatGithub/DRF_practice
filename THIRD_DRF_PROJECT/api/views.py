@@ -17,8 +17,8 @@ class StudentAPI(APIView):
             except Student.DoesNotExist:
                 return Response({"message" : f"student with id: {id} not found"})
         else:
-            students = get_the_students(request)
-            return Response({"students" : students}, status=200)
+            response = get_the_students(request)
+            return Response(response, status=200)
     
 
     def post(self, request):
@@ -54,8 +54,8 @@ class TeacherAPI(APIView):
             except Teacher.DoesNotExist:
                 return Response({"message" : f"teacher with id: {id} not found"})
         else:
-            teachers = get_the_teachers(request)
-            return Response({"teachers" : teachers}, status=200)
+            response = get_the_teachers(request)
+            return Response(response, status=200)
     
 
     def post(self, request):
@@ -93,7 +93,7 @@ def get_the_students(request):
         sort_field = '-' + sort_field    
     queryset = queryset.order_by(sort_field)
     serializer = StudentSerializer(queryset, many=True)
-    return serializer.data 
+    return {"total" : queryset.count(), "students" : serializer.data} 
 
 
 def get_the_teachers(request):
@@ -113,7 +113,7 @@ def get_the_teachers(request):
         sort_field = '-' + sort_field
     queryset = queryset.order_by(sort_field)
     serializer = TeacherSerializer(queryset, many=True)
-    return serializer.data
+    return {"total" : queryset.count(), "teachers" : serializer.data}
 
 
 def create_instance(request, model):
