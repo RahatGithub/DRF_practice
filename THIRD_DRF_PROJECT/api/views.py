@@ -17,9 +17,8 @@ class StudentAPI(APIView):
             except Student.DoesNotExist:
                 return Response({"message" : f"student with id: {id} not found"})
         else:
-            students = Student.objects.all()
-            serializer = StudentSerializer(students, many=True)
-            return Response({"students" : serializer.data}, status=200)
+            students = get_the_students(request)
+            return Response({"students" : students}, status=200)
     
 
     def post(self, request):
@@ -55,9 +54,8 @@ class TeacherAPI(APIView):
             except Teacher.DoesNotExist:
                 return Response({"message" : f"teacher with id: {id} not found"})
         else:
-            teachers = Teacher.objects.all()
-            serializer = TeacherSerializer(teachers, many=True)
-            return Response({"teachers" : serializer.data}, status=200)
+            teachers = get_the_teachers(request)
+            return Response({"teachers" : teachers}, status=200)
     
 
     def post(self, request):
@@ -81,13 +79,49 @@ class TeacherAPI(APIView):
 
 # ************* SUPPORTIVE FUNCTIONS ****************
 
+def get_the_students(request):
+    queryset = Student.objects.all() 
+    name = request.GET.get('name') 
+    dept = request.GET.get('dept') 
+    sort_field = request.GET.get('sort', 'id')
+    order = request.GET.get('order', 'ASC')
+    if name:
+        queryset = queryset.filter(name=name)
+    elif dept:
+        queryset = queryset.filter(dept=dept)
+    if order == 'DESC':
+        sort_field = '-' + sort_field    
+    queryset = queryset.order_by(sort_field)
+    serializer = StudentSerializer(queryset, many=True)
+    return serializer.data 
+
+
+def get_the_teachers(request):
+    queryset = Teacher.objects.all()
+    name = request.GET.get('name')
+    dept = request.GET.get('dept') 
+    designation = request.GET.get('designation')
+    sort_field = request.GET.get('sort', 'id')
+    order = request.GET.get('order', 'ASC')
+    if name:
+        queryset = queryset.filter(name=name)
+    elif dept:
+        queryset = queryset.filter(dept=dept)
+    elif designation:
+        queryset = queryset.filter(designation=designation)
+    if order == 'DESC':
+        sort_field = '-' + sort_field
+    queryset = queryset.order_by(sort_field)
+    serializer = TeacherSerializer(queryset, many=True)
+    return serializer.data
+
+
 def create_instance(request, model):
     model_name = model.__name__  # it will return the model's name (e.g. Student, Teacher)
     if model_name == 'Student':
         serializer = StudentSerializer(data = request.data)
     elif model_name == 'Teacher':
         serializer = TeacherSerializer(data = request.data)
-
     if serializer.is_valid():
         serializer.save()
     return serializer.data
@@ -99,7 +133,7 @@ def update_instance(request, model, id):
         instance = model.objects.get(id=id)
     except model.DoesNotExist:
         return Response({"message": f"{model_name} with id: {id} was not found"}, status=404)
-
+    
     partial = True # by default we're assuming it's a PATCH request
     if request.method == 'PUT': 
         partial = False
@@ -126,7 +160,7 @@ def destroy_instance(request, model, id):
         return f"{model_name} with id: {id} was not found"
 
 
-# generates a dull dictionary of the object to return because bodies of PUT and PATCH requests don't contain the full object
+# generates a full dictionary of the object to return because bodies of PUT and PATCH requests don't contain the full object
 def generate_full_dict(id, serializer_data):
         result_dict = dict({'id' : int(id)})
         additional_dict = dict(serializer_data)
