@@ -12,8 +12,18 @@ class BookAPI(APIView):
         if id:
             try:
                 book = Book.objects.get(id=id)
-                serializer = BookSerializer(book)
-                return Response(serializer.data, status=200)
+                # get all author names
+                author_names = [author.name for author in book.authors.all()]
+                # construct the JSON response
+                response_data = {
+                    'id': book.id,
+                    'title': book.title,
+                    'genre': book.genre,
+                    'price': book.price,
+                    'publication': book.publication.name,  # Assuming publication is a ForeignKey
+                    'authors': author_names
+                }
+                return Response(response_data, status=200)
             except Book.DoesNotExist:
                 return Response({"message": f"book with id: {id} was not found"}, status=404)  
         else:
@@ -100,7 +110,7 @@ def get_the_books(request):
     if title:
         queryset = queryset.filter(title=title)
     elif author:
-        queryset = queryset.filter(author=author)
+        queryset = Book.objects.filter(authors__name=author)
     elif genre:
         queryset = queryset.filter(genre=genre)                    
 
