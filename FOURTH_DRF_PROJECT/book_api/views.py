@@ -20,7 +20,7 @@ class BookAPI(APIView):
                     'title': book.title,
                     'genre': book.genre,
                     'price': book.price,
-                    'publication': book.publication.name,  # Assuming publication is a ForeignKey
+                    'publication': book.publication.name, 
                     'authors': author_names
                 }
                 return Response(response_data, status=200)
